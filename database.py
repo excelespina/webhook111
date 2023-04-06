@@ -35,6 +35,19 @@ def init_db():
 def store_message(recipient_id, message, type):
     with db_pool.getconn() as conn:
         with conn.cursor() as cursor:
+            # Check if the user exists
+            cursor.execute(
+                "SELECT COUNT(*) FROM users WHERE recipient_id = %s",
+                (recipient_id,),
+            )
+            user_exists = cursor.fetchone()[0] > 0
+
+            # If the user doesn't exist, create a new user entry
+            if not user_exists:
+                cursor.execute(
+                    "INSERT INTO users (recipient_id) VALUES (%s)",
+                    (recipient_id,),
+                )
             cursor.execute(
                 "INSERT INTO messages (recipient_id, content, role) VALUES (%s, %s, %s)",
                 (recipient_id, message, type),
