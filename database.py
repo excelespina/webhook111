@@ -30,7 +30,6 @@ def init_db():
                 """
             )
             conn.commit()
-            db_pool.putconn(conn)
 
 def store_message(recipient_id, message, type):
     global db_pool
@@ -54,7 +53,6 @@ def store_message(recipient_id, message, type):
                 (recipient_id, message, type),
             )
             conn.commit()
-        db_pool.putconn(conn)
 
 def fetch_messages(recipient_id):
     global db_pool
@@ -68,7 +66,6 @@ def fetch_messages(recipient_id):
             message_history = [{"role": "system", "content": os.environ.get('CHATBOT_ENGINE_PROMPT')}]
             for row in rows:
                 message_history.append({"role": row[1], "content": row[0]})
-            db_pool.putconn(conn)
         return message_history
 
 def update_likelihood(recipient_id, likelihood):
@@ -80,4 +77,3 @@ def update_likelihood(recipient_id, likelihood):
                 (likelihood, recipient_id),
             )
             conn.commit()
-            db_pool.putconn(conn)
