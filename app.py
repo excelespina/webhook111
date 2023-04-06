@@ -72,7 +72,7 @@ def send_message(recipient_id, message_text):
     user_messages[recipient_id].append({"role": "user", "content": message_text})
 
     # Call the gpt_chatbot function with the received message_text
-    gpt_response = gpt_chatbot(message_text)
+    gpt_response = gpt_chatbot(recipient_id, message_text)
 
     # Add the GPT-3 response to the user's message history
     user_messages[recipient_id].append({"role": "assistant", "content": gpt_response})
