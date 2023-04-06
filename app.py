@@ -65,7 +65,7 @@ def send_message(recipient_id, message_text):
     # If the user is not in user_messages, initialize their message history
     if recipient_id not in user_messages:
         user_messages[recipient_id] = [
-            {"role": "system", "content": os.environ.get('ENGINE_PROMPT')},
+            {"role": "system", "content": os.environ.get('CHATBOT_ENGINE_PROMPT')},
         ]
 
     # Add the user's message to their message history
