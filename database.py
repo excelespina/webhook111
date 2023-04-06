@@ -33,6 +33,7 @@ def init_db():
             db_pool.putconn(conn)
 
 def store_message(recipient_id, message, type):
+    global db_pool
     with db_pool.getconn() as conn:
         with conn.cursor() as cursor:
             # Check if the user exists
@@ -56,6 +57,7 @@ def store_message(recipient_id, message, type):
         db_pool.putconn(conn)
 
 def fetch_messages(recipient_id):
+    global db_pool
     with db_pool.getconn() as conn:
         with conn.cursor() as cursor:
             cursor.execute(
@@ -70,6 +72,7 @@ def fetch_messages(recipient_id):
         return message_history
 
 def update_likelihood(recipient_id, likelihood):
+    global db_pool
     with db_pool.getconn() as conn:
         with conn.cursor() as cursor:
             cursor.execute(
