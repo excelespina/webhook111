@@ -31,7 +31,7 @@ def webhook():
         return "ok"
 
 @app.route('/data_deletion', methods=['POST'])
-def webhook():
+def data_deletion():
     if request.method == 'POST':
         if request.args.get("hub.verify_token") == VERIFY_TOKEN:
             data = request.get_json()
