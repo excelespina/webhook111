@@ -64,10 +64,10 @@ def fetch_messages(recipient_id):
             )
             rows = cursor.fetchall()
             message_history = [{"role": "system", "content": os.environ.get('CHATBOT_ENGINE_PROMPT')}]
+            print(os.environ.get('CHATBOT_ENGINE_PROMPT'))
             for row in rows:
                 message_history.append({"role": row[1], "content": row[0]})
             db_pool.putconn(conn)
-            print(message_history)
         return message_history
 
 def update_likelihood(recipient_id, likelihood):
