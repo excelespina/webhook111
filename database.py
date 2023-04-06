@@ -60,18 +60,22 @@ def store_message(recipient_id, message, type):
     finally:
         db_pool.putconn(conn)
 
-def fetch_messages(recipient_id):
+def fetch_messages(recipient_id, n=20):
     global db_pool
     conn = db_pool.getconn()
     try:
         with conn.cursor() as cursor:
             cursor.execute(
-                "SELECT content, role FROM messages WHERE recipient_id = %s ORDER BY id",
-                (recipient_id,),
+                """SELECT content, role 
+                FROM messages 
+                WHERE recipient_id = %s 
+                ORDER BY created_time DESC
+                LIMIT %s""",
+                (recipient_id, n),
             )
             rows = cursor.fetchall()
             message_history = [{"role": "system", "content": os.environ.get('CHATBOT_ENGINE_PROMPT')}]
-            for row in rows:
+            for row in reversed(rows):  # Reverse the order of the rows to have them in ascending order
                 message_history.append({"role": row[1], "content": row[0]})
     finally:
         db_pool.putconn(conn)
