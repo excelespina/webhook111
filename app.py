@@ -3,7 +3,6 @@ import json
 import requests
 from flask import Flask, request
 import openai, random, time
-import gradio as gr
 
 #### SETUP
 app = Flask(__name__)
