@@ -26,6 +26,9 @@ def gpt_chatbot(recipient_id, input):
         if reply.startswith("You: "):
             reply = reply[4:].strip()
 
+        if reply.startswith("Juan: "):
+            reply = reply[5:].strip()
+
         threading.Thread(target=run_analysis, args=(recipient_id,)).start()
 
     return reply
