@@ -1,6 +1,6 @@
 import os, json, requests
-from flask import Flask, request
-from database import init_db, store_message
+from flask import Flask, request, jsonify
+from database import init_db, store_message, delete_user_data
 from model import gpt_chatbot, analyze_sentiment
 from concurrent.futures import ThreadPoolExecutor
 
@@ -29,6 +29,20 @@ def webhook():
                         message_text = messaging_event['message']['text']
                         send_message(sender_id, message_text)
         return "ok"
+
+@app.route('/data_deletion', methods=['POST'])
+def webhook():
+    if request.method == 'POST':
+        if request.args.get("hub.verify_token") == VERIFY_TOKEN:
+            data = request.get_json()
+            # Extract the recipient_id and call the delete_user_data function
+            recipient_id = data['user_id']
+            delete_user_data(recipient_id)
+
+            # Respond with the confirmation code provided by Facebook
+            return jsonify({"url": data['url'], "confirmation_code": data['confirmation_code']})
+        else:
+            return "Invalid verification token"
 
 def send_message(recipient_id, message_text):
     store_message(recipient_id, message_text, 'user')

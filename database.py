@@ -93,3 +93,11 @@ def update_likelihood(recipient_id, likelihood):
             conn.commit()
     finally:
         db_pool.putconn(conn)
+
+def delete_user_data(recipient_id):
+    with db_pool.getconn() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("DELETE FROM messages WHERE recipient_id = %s", (recipient_id,))
+            cursor.execute("DELETE FROM users WHERE recipient_id = %s", (recipient_id,))
+            conn.commit()
+        db_pool.putconn(conn)
