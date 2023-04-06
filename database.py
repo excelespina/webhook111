@@ -6,7 +6,8 @@ db_pool = psycopg2.pool.SimpleConnectionPool(1, 20, os.environ.get('DATABASE_URL
     
 def init_db():
     global db_pool
-    with db_pool.getconn() as conn:
+    conn = db_pool.getconn()
+    try:
         with conn.cursor() as cursor:
             cursor.execute(
                 """
@@ -30,11 +31,13 @@ def init_db():
                 """
             )
             conn.commit()
-            db_pool.putconn(conn)
+    finally:
+        db_pool.putconn(conn)
 
 def store_message(recipient_id, message, type):
     global db_pool
-    with db_pool.getconn() as conn:
+    conn = db_pool.getconn()
+    try:
         with conn.cursor() as cursor:
             # Check if the user exists
             cursor.execute(
@@ -54,11 +57,13 @@ def store_message(recipient_id, message, type):
                 (recipient_id, message, type),
             )
             conn.commit()
+    finally:
         db_pool.putconn(conn)
 
 def fetch_messages(recipient_id):
     global db_pool
-    with db_pool.getconn() as conn:
+    conn = db_pool.getconn()
+    try:
         with conn.cursor() as cursor:
             cursor.execute(
                 "SELECT content, role FROM messages WHERE recipient_id = %s ORDER BY id",
@@ -68,16 +73,19 @@ def fetch_messages(recipient_id):
             message_history = [{"role": "system", "content": os.environ.get('CHATBOT_ENGINE_PROMPT')}]
             for row in rows:
                 message_history.append({"role": row[1], "content": row[0]})
-            db_pool.putconn(conn)
-        return message_history
+    finally:
+        db_pool.putconn(conn)
+    return message_history
 
 def update_likelihood(recipient_id, likelihood):
     global db_pool
-    with db_pool.getconn() as conn:
+    conn = db_pool.getconn()
+    try:
         with conn.cursor() as cursor:
             cursor.execute(
                 "UPDATE users SET likelihood = %s WHERE recipient_id = %s",
                 (likelihood, recipient_id),
             )
             conn.commit()
-            db_pool.putconn(conn)
+    finally:
+        db_pool.putconn(conn)
