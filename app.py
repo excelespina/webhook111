@@ -31,6 +31,7 @@ def webhook():
         return "ok"
 
 def send_message(recipient_id, message_text):
+    store_message(recipient_id, message_text, 'user')
     url = f"https://graph.facebook.com/v13.0/me/messages?access_token={PAGE_ACCESS_TOKEN}"
     response = gpt_chatbot(recipient_id, message_text)
     payload = {
@@ -38,7 +39,7 @@ def send_message(recipient_id, message_text):
         "message": {"text": response},
     }
     headers = {"Content-Type": "application/json"}
-    store_message(recipient_id, message_text, response)
+    store_message(recipient_id, response, 'assistant')
     requests.post(url, data=json.dumps(payload), headers=headers)
 
 if __name__ == "__main__":
