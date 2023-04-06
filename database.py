@@ -12,6 +12,7 @@ def init_db():
                 """
                 CREATE TABLE IF NOT EXISTS users (
                     recipient_id BIGINT PRIMARY KEY,
+                    created_time TIMESTAMPTZ DEFAULT NOW(),
                     likelihood VARCHAR(10)
                 );
                 """
@@ -23,6 +24,7 @@ def init_db():
                     recipient_id BIGINT,
                     role VARCHAR(10),
                     content TEXT,
+                    created_time TIMESTAMPTZ DEFAULT NOW(),
                     FOREIGN KEY (recipient_id) REFERENCES users (recipient_id)
                 );
                 """
@@ -30,12 +32,12 @@ def init_db():
             conn.commit()
             db_pool.putconn(conn)
 
-def store_message(recipient_id, user_message, assistant_message):
+def store_message(recipient_id, message, type):
     with db_pool.getconn() as conn:
         with conn.cursor() as cursor:
             cursor.execute(
-                "INSERT INTO messages (recipient_id, user_message, assistant_message) VALUES (%s, %s, %s)",
-                (recipient_id, user_message, assistant_message),
+                "INSERT INTO messages (recipient_id, content, role) VALUES (%s, %s, %s)",
+                (recipient_id, message, type),
             )
             conn.commit()
         db_pool.putconn(conn)
@@ -44,14 +46,13 @@ def fetch_messages(recipient_id):
     with db_pool.getconn() as conn:
         with conn.cursor() as cursor:
             cursor.execute(
-                "SELECT user_message, assistant_message FROM messages WHERE recipient_id = %s ORDER BY id",
+                "SELECT content, role FROM messages WHERE recipient_id = %s ORDER BY id",
                 (recipient_id,),
             )
             rows = cursor.fetchall()
             message_history = [{"role": "system", "content": os.environ.get('CHATBOT_ENGINE_PROMPT')}]
             for row in rows:
-                message_history.append({"role": "user", "content": row[0]})
-                message_history.append({"role": "assistant", "content": row[1]})
+                message_history.append({"role": row[1], "content": row[0]})
             db_pool.putconn(conn)
         return message_history
 
