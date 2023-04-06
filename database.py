@@ -67,6 +67,7 @@ def fetch_messages(recipient_id):
             for row in rows:
                 message_history.append({"role": row[1], "content": row[0]})
             db_pool.putconn(conn)
+            print(message_history)
         return message_history
 
 def update_likelihood(recipient_id, likelihood):
