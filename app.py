@@ -1,7 +1,7 @@
 import os, json, asyncio
 from flask import Flask, request, jsonify
 from database import init_db, store_message, delete_user_data
-from model import gpt_chatbot, analyze_sentiment
+from model import gpt_chatbot
 import aiohttp
 
 app = Flask(__name__)
