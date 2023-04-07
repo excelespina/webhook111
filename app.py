@@ -1,11 +1,10 @@
-import os, json, requests
+import os, json, asyncio
 from flask import Flask, request, jsonify
 from database import init_db, store_message, delete_user_data
 from model import gpt_chatbot, analyze_sentiment
-from concurrent.futures import ThreadPoolExecutor
+import aiohttp
 
 app = Flask(__name__)
-executor = ThreadPoolExecutor(max_workers=2)
 
 VERIFY_TOKEN = os.environ.get('VERIFY_TOKEN')
 PAGE_ACCESS_TOKEN = os.environ.get('PAGE_ACCESS_TOKEN')
@@ -27,7 +26,7 @@ def webhook():
                     if messaging_event.get('message'):
                         sender_id = messaging_event['sender']['id']
                         message_text = messaging_event['message']['text']
-                        send_message(sender_id, message_text)
+                        asyncio.run(send_message(sender_id, message_text))
         return "ok"
 
 @app.route('/data_deletion', methods=['POST'])
@@ -44,17 +43,20 @@ def data_deletion():
         else:
             return "Invalid verification token"
 
-def send_message(recipient_id, message_text):
+async def send_message(recipient_id, message_text):
     store_message(recipient_id, message_text, 'user')
     url = f"https://graph.facebook.com/v13.0/me/messages?access_token={PAGE_ACCESS_TOKEN}"
-    response = gpt_chatbot(recipient_id, message_text)
+    response = await gpt_chatbot(recipient_id, message_text)
     payload = {
         "recipient": {"id": recipient_id},
         "message": {"text": response},
     }
     headers = {"Content-Type": "application/json"}
-    store_message(recipient_id, response, 'assistant')
-    requests.post(url, data=json.dumps(payload), headers=headers)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, data=json.dumps(payload), headers=headers) as resp:
+            store_message(recipient_id, response, 'assistant')
+            print(await resp.text())
 
 if __name__ == "__main__":
     app.run(debug=True)

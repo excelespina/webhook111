@@ -1,9 +1,9 @@
-import openai, os, threading
+import openai, os, threading, asyncio, random, re
 from database import fetch_messages, update_likelihood
 
 openai.api_key = os.environ.get('OPENAI_KEY')
 
-def gpt_chatbot(recipient_id, input):
+async def gpt_chatbot(recipient_id, input):
     if input:
         messages_with_formatting = []
 
@@ -18,6 +18,9 @@ def gpt_chatbot(recipient_id, input):
 
         messages_with_formatting.append({"role": "user", "content": "Them: " + input})
 
+        # Add delay here (in seconds)
+        await asyncio.sleep(random.uniform(5, 12))
+
         chat = openai.ChatCompletion.create(
             model="gpt-3.5-turbo", messages=messages_with_formatting
         )
@@ -29,34 +32,19 @@ def gpt_chatbot(recipient_id, input):
         if reply.startswith("Juan: "):
             reply = reply[5:].strip()
 
-        threading.Thread(target=run_analysis, args=(recipient_id,)).start()
+        # Extract percentage values from the reply
+        likelihoods = re.findall(r'\{\{.*?(\d+)%\}\}', reply)
+
+        # Remove the brackets and likelihood information from the reply
+        reply = re.sub(r'\{\{.*?\}\}', '', reply).strip()
+
+        # Store the extracted percentage values in the database
+        if likelihoods:
+            likelihood_data = {
+                "sunday_service": likelihoods[0],
+                "bible_study": likelihoods[1],
+                "bible_talk": likelihoods[2],
+            }
+            update_likelihood(recipient_id, likelihood_data)
 
     return reply
-
-def run_analysis(recipient_id):
-    messages = fetch_messages(recipient_id)
-    likelihood = analyze_sentiment(recipient_id, messages)
-    update_likelihood(recipient_id, likelihood)
-
-def analyze_sentiment(recipient_id, messages):
-    prompt = "Given the following conversation, estimate the likelihood of the user attending church, expressed as a percentage (0% to 100%):\n\n"
-
-    for line in messages:
-        if line['role'] == "user":
-            prompt += f"User: {line['content']}\n"
-        if line['role'] == "assistant":
-            prompt += f"Assistant: {line['content']}\n"
-
-    prompt += "\nLikelihood: "
-
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo",
-        prompt=prompt,
-        max_tokens=10,
-        n=1,
-        stop=None,
-        temperature=0.5,
-    )
-
-    likelihood = response.choices[0].text.strip()
-    return likelihood

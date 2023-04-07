@@ -14,7 +14,9 @@ def init_db():
                 CREATE TABLE IF NOT EXISTS users (
                     recipient_id BIGINT PRIMARY KEY,
                     created_time TIMESTAMPTZ DEFAULT NOW(),
-                    likelihood VARCHAR(10)
+                    sunday_service_likelihood INTEGER,
+                    bible_study_likelihood INTEGER,
+                    bible_talk_likelihood INTEGER
                 );
                 """
             )
@@ -81,14 +83,18 @@ def fetch_messages(recipient_id, n=20):
         db_pool.putconn(conn)
     return message_history
 
-def update_likelihood(recipient_id, likelihood):
+def update_likelihood(recipient_id, likelihood_data):
     global db_pool
     conn = db_pool.getconn()
     try:
         with conn.cursor() as cursor:
             cursor.execute(
-                "UPDATE users SET likelihood = %s WHERE recipient_id = %s",
-                (likelihood, recipient_id),
+                """
+                UPDATE users
+                SET sunday_service_likelihood = %s, bible_study_likelihood = %s, bible_talk_likelihood = %s
+                WHERE recipient_id = %s
+                """,
+                (likelihood_data["sunday_service"], likelihood_data["bible_study"], likelihood_data["bible_talk"], recipient_id),
             )
             conn.commit()
     finally:
