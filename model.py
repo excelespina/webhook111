@@ -50,7 +50,7 @@ def analyze_sentiment(recipient_id, messages):
     prompt += "\nLikelihood: "
 
     response = openai.Completion.create(
-        engine="text-davinci-002",
+        model="gpt-3.5-turbo",
         prompt=prompt,
         max_tokens=10,
         n=1,
