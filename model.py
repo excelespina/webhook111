@@ -39,6 +39,7 @@ async def gpt_chatbot(recipient_id, input):
         reply = re.sub(r'\{\{.*?\}\}', '', reply).strip()
 
         # Store the extracted percentage values in the database
+        print(likelihoods)
         if likelihoods:
             likelihood_data = {
                 "sunday_service": likelihoods[0],
