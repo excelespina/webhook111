@@ -25,6 +25,7 @@ async def gpt_chatbot(recipient_id, input):
             model="gpt-3.5-turbo", messages=messages_with_formatting
         )
         reply = chat.choices[0].message.content
+        print(reply)
 
         if reply.startswith("You: "):
             reply = reply[4:].strip()
@@ -40,7 +41,6 @@ async def gpt_chatbot(recipient_id, input):
 
         # Store the extracted percentage values in the database
         print(likelihoods)
-        print(reply)
         if likelihoods:
             likelihood_data = {
                 "sunday_service": likelihoods[0],
