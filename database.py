@@ -76,7 +76,7 @@ def fetch_messages(recipient_id, n=20):
                 (recipient_id, n),
             )
             rows = cursor.fetchall()
-            message_history = [{"role": "system", "content": os.environ.get('CHATBOT_ENGINE_PROMPT')}]
+            message_history = [{"role": "system", "content": os.environ.get('CHATBOT_ENGINE_PROMPT_WITH_PERCENT')}]
             for row in reversed(rows):  # Reverse the order of the rows to have them in ascending order
                 message_history.append({"role": row[1], "content": row[0]})
     finally:
