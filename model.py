@@ -19,7 +19,7 @@ async def gpt_chatbot(recipient_id, input):
         messages_with_formatting.append({"role": "user", "content": "Them: " + input})
 
         # Add delay here (in seconds)
-        await asyncio.sleep(random.uniform(5, 12))
+        await asyncio.sleep(random.uniform(1, 5))
 
         chat = openai.ChatCompletion.create(
             model="gpt-3.5-turbo", messages=messages_with_formatting
@@ -43,9 +43,9 @@ async def gpt_chatbot(recipient_id, input):
         print(likelihoods)
         if likelihoods:
             likelihood_data = {
-                "sunday_service": likelihoods[0],
-                "bible_study": likelihoods[1],
-                "bible_talk": likelihoods[2],
+                "sunday_service": likelihoods[0] or 0,
+                "bible_study": likelihoods[1] or 0,
+                "bible_talk": likelihoods[2] or 0,
             }
             update_likelihood(recipient_id, likelihood_data)
 
