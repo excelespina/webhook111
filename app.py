@@ -44,9 +44,9 @@ def data_deletion():
             return "Invalid verification token"
 
 async def send_message(recipient_id, message_text):
-    store_message(recipient_id, message_text, 'user')
     url = f"https://graph.facebook.com/v13.0/me/messages?access_token={PAGE_ACCESS_TOKEN}"
     response = await gpt_chatbot(recipient_id, message_text)
+    store_message(recipient_id, message_text, 'user')
     payload = {
         "recipient": {"id": recipient_id},
         "message": {"text": response},

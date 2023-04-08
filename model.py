@@ -19,7 +19,8 @@ async def gpt_chatbot(recipient_id, input):
         messages_with_formatting.append({"role": "user", "content": "Them: " + input})
 
         # Add delay here (in seconds)
-        await asyncio.sleep(random.uniform(1, 5))
+        await asyncio.sleep(1)
+        # await asyncio.sleep(random.uniform(1, 5))
 
         chat = openai.ChatCompletion.create(
             model="gpt-3.5-turbo", messages=messages_with_formatting
