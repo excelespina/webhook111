@@ -24,6 +24,26 @@ def webhook():
             for entry in data['entry']:
                 for messaging_event in entry['messaging']:
                     if messaging_event.get('message'):
+                        print(messaging_event)
+                        sender_id = messaging_event['sender']['id']
+                        message_text = messaging_event['message']['text']
+                        asyncio.run(send_message(sender_id, message_text))
+        return "ok"
+    
+@app.route('/juan_plus_plus/webhook', methods=['GET', 'POST'])
+def webhook():
+    if request.method == 'GET':
+        if request.args.get("hub.verify_token") == VERIFY_TOKEN:
+            return request.args.get("hub.challenge")
+        else:
+            return "Invalid verification token"
+    elif request.method == 'POST':
+        data = request.get_json()
+        if data['object'] == 'page':
+            for entry in data['entry']:
+                for messaging_event in entry['messaging']:
+                    if messaging_event.get('message'):
+                        print(messaging_event)
                         sender_id = messaging_event['sender']['id']
                         message_text = messaging_event['message']['text']
                         asyncio.run(send_message(sender_id, message_text))
