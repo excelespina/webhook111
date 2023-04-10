@@ -8,6 +8,7 @@ app = Flask(__name__)
 
 VERIFY_TOKEN = os.environ.get('VERIFY_TOKEN')
 PAGE_ACCESS_TOKEN = os.environ.get('PAGE_ACCESS_TOKEN')
+PLUSPLUS_PAGE_ACCESS_TOKEN = os.environ.get('PLUSPLUS_PAGE_ACCESS_TOKEN')
 
 init_db()
 
@@ -27,7 +28,7 @@ def webhook():
                         print(messaging_event)
                         sender_id = messaging_event['sender']['id']
                         message_text = messaging_event['message']['text']
-                        asyncio.run(send_message(sender_id, message_text))
+                        asyncio.run(send_message(sender_id, message_text, PAGE_ACCESS_TOKEN))
         return "ok"
     
 @app.route('/juan_plus_plus/webhook', methods=['GET', 'POST'])
@@ -46,7 +47,7 @@ def juan_plus_plus_webhook():
                         print(messaging_event)
                         sender_id = messaging_event['sender']['id']
                         message_text = messaging_event['message']['text']
-                        asyncio.run(send_message(sender_id, message_text))
+                        asyncio.run(send_message(sender_id, message_text, PLUSPLUS_PAGE_ACCESS_TOKEN))
         return "ok"
 
 @app.route('/data_deletion', methods=['POST'])
@@ -63,8 +64,8 @@ def data_deletion():
         else:
             return "Invalid verification token"
 
-async def send_message(recipient_id, message_text):
-    url = f"https://graph.facebook.com/v13.0/me/messages?access_token={PAGE_ACCESS_TOKEN}"
+async def send_message(recipient_id, message_text, access_token):
+    url = f"https://graph.facebook.com/v13.0/me/messages?access_token={access_token}"
     response = await gpt_chatbot(recipient_id, message_text)
     store_message(recipient_id, message_text, 'user')
     payload = {
