@@ -31,7 +31,7 @@ def webhook():
         return "ok"
     
 @app.route('/juan_plus_plus/webhook', methods=['GET', 'POST'])
-def webhook():
+def juan_plus_plus_webhook():
     if request.method == 'GET':
         if request.args.get("hub.verify_token") == VERIFY_TOKEN:
             return request.args.get("hub.challenge")
