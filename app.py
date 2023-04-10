@@ -1,6 +1,6 @@
 import os, json, asyncio
 from flask import Flask, request, jsonify
-from database import init_db, store_message, delete_user_data
+from database import *
 from model import gpt_chatbot
 import aiohttp
 
@@ -28,7 +28,8 @@ def webhook():
                         print(messaging_event)
                         sender_id = messaging_event['sender']['id']
                         message_text = messaging_event['message']['text']
-                        asyncio.run(send_message(sender_id, message_text, PAGE_ACCESS_TOKEN))
+                        created_time = messaging_event['timestamp']
+                        asyncio.run(send_message(sender_id, message_text, created_time, PAGE_ACCESS_TOKEN))
         return "ok"
     
 @app.route('/juan_plus_plus/webhook', methods=['GET', 'POST'])
@@ -47,7 +48,8 @@ def juan_plus_plus_webhook():
                         print(messaging_event)
                         sender_id = messaging_event['sender']['id']
                         message_text = messaging_event['message']['text']
-                        asyncio.run(send_message(sender_id, message_text, PLUSPLUS_PAGE_ACCESS_TOKEN))
+                        created_time = messaging_event['timestamp']
+                        asyncio.run(send_message(sender_id, message_text, created_time, PLUSPLUS_PAGE_ACCESS_TOKEN))
         return "ok"
 
 @app.route('/data_deletion', methods=['POST'])
@@ -64,7 +66,9 @@ def data_deletion():
         else:
             return "Invalid verification token"
 
-async def send_message(recipient_id, message_text, access_token):
+async def send_message(recipient_id, message_text, created_time, access_token):
+    if message_exists(recipient_id, message_text, created_time):
+        pass
     url = f"https://graph.facebook.com/v13.0/me/messages?access_token={access_token}"
     response = await gpt_chatbot(recipient_id, message_text)
     store_message(recipient_id, message_text, 'user')

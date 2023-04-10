@@ -62,6 +62,25 @@ def store_message(recipient_id, message, type):
     finally:
         db_pool.putconn(conn)
 
+def message_exists(recipient_id, content, created_time):
+    global db_pool
+    conn = db_pool.getconn()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT COUNT(*)
+                FROM messages
+                WHERE recipient_id = %s AND content = %s AND created_time = %s
+                """,
+                (recipient_id, content, created_time),
+            )
+            result = cursor.fetchone()
+            return result[0] > 0
+    finally:
+        db_pool.putconn(conn)
+
+
 def fetch_messages(recipient_id, n=20):
     global db_pool
     conn = db_pool.getconn()

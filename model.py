@@ -1,5 +1,5 @@
 import openai, os, threading, asyncio, random, re
-from database import fetch_messages, update_likelihood
+from database import *
 
 openai.api_key = os.environ.get('OPENAI_KEY')
 
