@@ -36,7 +36,7 @@ def init_db():
     finally:
         db_pool.putconn(conn)
 
-def store_message(recipient_id, message, type):
+def store_message(recipient_id, message, type, created_time):
     global db_pool
     conn = db_pool.getconn()
     try:
@@ -55,8 +55,8 @@ def store_message(recipient_id, message, type):
                     (recipient_id,),
                 )
             cursor.execute(
-                "INSERT INTO messages (recipient_id, content, role) VALUES (%s, %s, %s)",
-                (recipient_id, message, type),
+                "INSERT INTO messages (recipient_id, content, role, created_time) VALUES (%s, %s, %s, %s)",
+                (recipient_id, message, type, datetime.fromtimestamp(created_time)),
             )
             conn.commit()
     finally:

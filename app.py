@@ -71,7 +71,7 @@ async def send_message(recipient_id, message_text, created_time, access_token):
         pass
     url = f"https://graph.facebook.com/v13.0/me/messages?access_token={access_token}"
     response = await gpt_chatbot(recipient_id, message_text)
-    store_message(recipient_id, message_text, 'user')
+    store_message(recipient_id, message_text, 'user', created_time)
     payload = {
         "recipient": {"id": recipient_id},
         "message": {"text": response},
@@ -80,7 +80,7 @@ async def send_message(recipient_id, message_text, created_time, access_token):
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url, data=json.dumps(payload), headers=headers) as resp:
-            store_message(recipient_id, response, 'assistant')
+            store_message(recipient_id, response, 'assistant', created_time)
             print(await resp.text())
 
 if __name__ == "__main__":
