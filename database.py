@@ -1,4 +1,4 @@
-import os
+import os, datetime
 import psycopg2
 from psycopg2 import pool
 
@@ -73,7 +73,7 @@ def message_exists(recipient_id, content, created_time):
                 FROM messages
                 WHERE recipient_id = %s AND content = %s AND created_time = %s
                 """,
-                (recipient_id, content, created_time),
+                (recipient_id, content, datetime.fromtimestamp(created_time)),
             )
             result = cursor.fetchone()
             return result[0] > 0
