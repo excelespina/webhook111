@@ -1,6 +1,7 @@
-import os, datetime
+import os
 import psycopg2
 from psycopg2 import pool
+from datetime import datetime
 
 db_pool = psycopg2.pool.SimpleConnectionPool(1, 20, os.environ.get('DATABASE_URL'))
     
