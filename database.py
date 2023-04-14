@@ -57,7 +57,7 @@ def store_message(recipient_id, message, type, created_time):
                 )
             cursor.execute(
                 "INSERT INTO messages (recipient_id, content, role, created_time) VALUES (%s, %s, %s, %s)",
-                (recipient_id, message, type, datetime.fromtimestamp(created_time)),
+                (recipient_id, message, type, datetime.fromtimestamp(created_time / 1000)),
             )
             conn.commit()
     finally:
@@ -74,7 +74,7 @@ def message_exists(recipient_id, content, created_time):
                 FROM messages
                 WHERE recipient_id = %s AND content = %s AND created_time = %s
                 """,
-                (recipient_id, content, datetime.fromtimestamp(created_time)),
+                (recipient_id, content, datetime.fromtimestamp(created_time / 1000)),
             )
             result = cursor.fetchone()
             return result[0] > 0
